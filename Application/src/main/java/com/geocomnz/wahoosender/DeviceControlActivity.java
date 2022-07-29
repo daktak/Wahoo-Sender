@@ -16,26 +16,19 @@
 
 package com.geocomnz.wahoosender;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.annotation.RequiresApi;
-import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,15 +37,12 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS;
 
 /**
  * For a given BLE device, this Activity provides the user interface to connect, display data,
@@ -62,14 +52,14 @@ import static android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS;
  */
 public class DeviceControlActivity extends Activity {
 
-    public static String ServiceUUID = "a026ee06-0a7d-4ab3-97fa-f1500f9feb8b";
+    //public static String ServiceUUID = "a026ee06-0a7d-4ab3-97fa-f1500f9feb8b";
     public static String CommandUUID = "a026e022-0a7d-4ab3-97fa-f1500f9feb8b";
     public static String PollingUUID = "a026e01c-0a7d-4ab3-97fa-f1500f9feb8b";
 
-    private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
-    private static final int PERMISSION_REQUEST_BACKGROUND_LOCATION = 2;
+    //private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
+    //private static final int PERMISSION_REQUEST_BACKGROUND_LOCATION = 2;
 
-    private int commandPosition;
+    //private int commandPosition;
 
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
 
@@ -78,22 +68,18 @@ public class DeviceControlActivity extends Activity {
 
     private TextView mConnectionState;
     private TextView mDataField;
-    private String mDeviceName;
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
     private BluetoothLeService mBluetoothLeService;
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
-            new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+            new ArrayList<>();
     private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
     private BluetoothGattCharacteristic smsGatt;
     private BluetoothGattCharacteristic PollGatt;
 
-    private final String LIST_NAME = "NAME";
-    private final String LIST_UUID = "UUID";
-
     private NotificationListener NotificationListener;
-    private ArrayList<Timer> mTimers = new ArrayList<Timer>();
+    private final ArrayList<Timer> mTimers = new ArrayList<>();
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -189,7 +175,7 @@ public class DeviceControlActivity extends Activity {
 
 
         final Intent intent = getIntent();
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+        String mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
 
         // Sets up UI references.
@@ -222,6 +208,7 @@ public class DeviceControlActivity extends Activity {
             String name = notification.getString("name");
 
             try {
+                assert mypayload != null;
                 sendString(name, mypayload);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -307,17 +294,19 @@ public class DeviceControlActivity extends Activity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
-        String uuid = null;
+        String uuid;
         String unknownServiceString = getResources().getString(R.string.unknown_service);
         String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
-        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
+        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();
         ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData
-                = new ArrayList<ArrayList<HashMap<String, String>>>();
-        mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+                = new ArrayList<>();
+        mGattCharacteristics = new ArrayList<>();
 
         // Loops through available GATT Services.
+        String LIST_NAME = "NAME";
+        String LIST_UUID = "UUID";
         for (BluetoothGattService gattService : gattServices) {
-            HashMap<String, String> currentServiceData = new HashMap<String, String>();
+            HashMap<String, String> currentServiceData = new HashMap<>();
             uuid = gattService.getUuid().toString();
             currentServiceData.put(
                     LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
@@ -325,22 +314,22 @@ public class DeviceControlActivity extends Activity {
             gattServiceData.add(currentServiceData);
 
             ArrayList<HashMap<String, String>> gattCharacteristicGroupData =
-                    new ArrayList<HashMap<String, String>>();
+                    new ArrayList<>();
             List<BluetoothGattCharacteristic> gattCharacteristics =
                     gattService.getCharacteristics();
             ArrayList<BluetoothGattCharacteristic> charas =
-                    new ArrayList<BluetoothGattCharacteristic>();
+                    new ArrayList<>();
 
             // Loops through available Characteristics.
             for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
                 charas.add(gattCharacteristic);
-                HashMap<String, String> currentCharaData = new HashMap<String, String>();
+                HashMap<String, String> currentCharaData = new HashMap<>();
                 uuid = gattCharacteristic.getUuid().toString();
                 currentCharaData.put(
                         LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
                 currentCharaData.put(LIST_UUID, uuid);
                 gattCharacteristicGroupData.add(currentCharaData);
-                Log.i("uuid", String.valueOf(uuid == CommandUUID));
+                Log.i("uuid", String.valueOf(uuid.equals(CommandUUID)));
                 if(uuid.equals(CommandUUID)) {
                     smsGatt = gattCharacteristic;
                     mBluetoothLeService.setCharacteristicNotification(smsGatt, true);
@@ -392,10 +381,9 @@ public class DeviceControlActivity extends Activity {
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
     }
-    public static void sendNotification(){
+    //public static void sendNotification(){
         //sendString
-
-    }
+    //}
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void sendString(String from, String message) throws UnsupportedEncodingException {

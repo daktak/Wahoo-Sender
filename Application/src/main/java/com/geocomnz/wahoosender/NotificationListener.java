@@ -1,6 +1,5 @@
 package com.geocomnz.wahoosender;
 
-import android.app.Service;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;

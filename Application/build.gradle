@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
+        classpath 'com.android.tools.build:gradle:7.2.1'
     }
 }
 
@@ -65,8 +65,8 @@ android {
         androidTest.java.srcDirs = ['tests/src']
 
     }
-
-    lintOptions {
+    lint {
         abortOnError false
     }
+
 }
